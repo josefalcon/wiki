@@ -1,0 +1,50 @@
+{
+  "template": "wik*",
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "char_filter": {
+        "quotes": {
+          "type": "mapping",
+          "mappings": [
+            "\\u0091=>",
+            "\\u0092=>",
+            "\\u2018=>",
+            "\\u2019=>",
+            "\\u201B=>",
+            "\\u0027=>"
+          ]
+        }
+      },
+      "filter": {
+        "shingles": {
+          "type": "shingle",
+          "max_shingle_size": "4",
+          "token_separator": ""
+        }
+      },
+      "analyzer": {
+        "crossword": {
+          "tokenizer": "standard",
+          "filter": ["standard", "lowercase", "asciifolding", "shingles"],
+          "char_filter": ["quotes"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "title": {
+          "type": "string",
+          "analyzer": "crossword"
+        },
+        "url": {
+          "type": "string",
+          "index": "not_analyzed"
+        }
+      }
+    }
+  }
+}
