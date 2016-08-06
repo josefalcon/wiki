@@ -8,7 +8,8 @@ var client = new elasticsearch.Client({
   host: host + ':' + port
 });
 
-client.putTemplate({
+client.indices.putTemplate({
+  name: 'wik',
   body: fs.readFileSync('template.json').toString()
 })
 .then(r => console.log('Created index template'))
