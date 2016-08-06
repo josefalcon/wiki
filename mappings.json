@@ -1,0 +1,14 @@
+{
+  "doc": {
+    "properties": {
+      "title": {
+        "type": "string",
+        "analyzer": "crossword"
+      },
+      "url": {
+        "type": "string",
+        "index": "not_analyzed"
+      }
+    }
+  }
+}
