@@ -2,9 +2,11 @@ var elasticsearch = require('elasticsearch');
 var fs = require('fs');
 var XmlStream = require('xml-stream');
 
+var host = process.env["ES_PORT_9200_TCP_ADDR"];
+var port = process.env["ES_PORT_9200_TCP_PORT"];
 
 var client = new elasticsearch.Client({
-  host: '192.168.99.100:32769'
+  host: host + ':' + port
 });
 
 // wget -c https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-abstract.xml
