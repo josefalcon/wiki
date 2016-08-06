@@ -1,6 +1,9 @@
 FROM node:latest
 
-COPY . /wiki
-
+RUN mkdir wiki
 WORKDIR wiki
+
+COPY package.json package.json
 RUN npm install
+
+COPY . .
