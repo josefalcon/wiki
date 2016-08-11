@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "elasticsearch": "^11.0.1",
+    "stream-snitch": "0.0.2",
     "xml-stream": "^0.4.5"
   }
 }
