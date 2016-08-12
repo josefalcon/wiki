@@ -7,8 +7,8 @@ var doc = `
 Elasticsearch Ingestion
 
 Usage:
-  ingest wikipedia  <file> <index> [--host=<host>] [--port=<port>] [--type=<type>]
-  ingest wiktionary <file> <index> [--host=<host>] [--port=<port>] [--type=<type>]
+  ingest wikipedia  <file> <index> [--host=<host>] [--port=<port>] [--type=<type>] [--dry-run]
+  ingest wiktionary <file> <index> [--host=<host>] [--port=<port>] [--type=<type>] [--dry-run]
   ingest -h | --help
 
 Options:
@@ -16,13 +16,17 @@ Options:
   --host=<host>  ES host [default: localhost]
   --port=<port>  ES port [default: 9200]
   --type=<type>  Index type [default: doc]
+  --dry-run      Only print the documents that would be sent to ES
 `
 
 var argv = docopt(doc);
 
-var client = new elasticsearch.Client({
-  host: argv['--host'] + ':' + argv['--port']
-});
+var client;
+if (!argv['dry-run']) {
+  client = new elasticsearch.Client({
+    host: argv['--host'] + ':' + argv['--port']
+  });
+}
 
 // wget -c https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-abstract.xml
 // now relies on precomputed pagerank json data
@@ -42,7 +46,12 @@ pages.on('data', line => {
   document.url = root + document.title;
   document.title = document.title.replace(/_/g, ' ');
 
-  bulk.push({ index:  { _index: argv['<index>'], _type: argv['--type'], _id: doc.id } });
+  if (argv['--dry-run']) {
+    console.log(document);
+    return;
+  }
+
+  bulk.push({ index:  { _index: argv['<index>'], _type: argv['--type'], _id: document.id } });
   bulk.push(doc);
 
   if (count % 1000 == 0) {
