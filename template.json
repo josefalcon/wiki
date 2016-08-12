@@ -40,6 +40,9 @@
           "type": "string",
           "analyzer": "crossword"
         },
+        "rank": {
+          "type": "double"
+        },
         "url": {
           "type": "string",
           "index": "not_analyzed"

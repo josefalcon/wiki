@@ -1,8 +1,20 @@
 var fs = require('fs');
 var StreamSnitch = require('stream-snitch');
+var docopt = require('docopt').docopt;
 
-var ps = fs.createReadStream('../cword/enwiki-latest-page.sql');
-var ws = fs.createWriteStream('enwiki-latest-page-no-redirects2.json');
+var doc = `
+Parse pages sql
+
+Usage:
+  pages <src> <dst>
+  pages -h | --help
+
+Options:
+  -h --help      Show this screen.
+`
+var argv = docopt(doc);
+var ps = fs.createReadStream(argv['<src>']);
+var ws = fs.createWriteStream(argv['<dst>']);
 
 // https://www.mediawiki.org/wiki/Manual:Page_table
 var snitch = new StreamSnitch(/\((\d+),0,'([^,]*?)','[^,]*?',\d+,(\d+),.*?\)/gi);
