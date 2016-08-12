@@ -52,9 +52,9 @@ pages.on('data', line => {
   }
 
   bulk.push({ index:  { _index: argv['<index>'], _type: argv['--type'], _id: document.id } });
-  bulk.push(doc);
+  bulk.push(document);
 
-  if (count % 1000 == 0) {
+  if (count % 10000 == 0) {
     console.log(count, 'sending batch...');
     client.bulk({body: bulk}).catch(e => console.error(e));
     bulk.length = 0;
