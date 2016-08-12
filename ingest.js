@@ -1,6 +1,8 @@
 var elasticsearch = require('elasticsearch');
 var fs = require('fs');
 var byline = require('byline');
+var through2 = require('through2');
+var ESBulkStream = require('elasticsearch-bulk-index-stream');
 var docopt = require('docopt').docopt;
 
 var doc = `
@@ -39,24 +41,24 @@ var bulk = [];
 var site = argv.wikipedia ? 'wikipedia' : 'wiktionary';
 var root = `https://en.${site}.org/wiki/`
 
-pages.on('data', line => {
-  count++;
+pages
+  .pipe(through2.obj(function(chunk, enc, callback) {
+    var document = JSON.parse(chunk);
+    document.url = root + document.title;
+    document.title = document.title.replace(/_/g, ' ');
 
-  var document = JSON.parse(line);
-  document.url = root + document.title;
-  document.title = document.title.replace(/_/g, ' ');
-
-  if (argv['--dry-run']) {
-    console.log(document);
-    return;
-  }
-
-  bulk.push({ index:  { _index: argv['<index>'], _type: argv['--type'], _id: document.id } });
-  bulk.push(document);
-
-  if (count % 10000 == 0) {
-    console.log(count, 'sending batch...');
-    client.bulk({body: bulk}).catch(e => console.error(e));
-    bulk.length = 0;
-  }
-});
+    this.push({
+      index: argv['<index>'],
+      type: argv['--type'],
+      id: document.id,
+      body: document
+    })
+    callback()
+   }))
+   .pipe(new ESBulkStream(client, { highWaterMark: 5000 }))
+   .on('error', function(error) {
+      console.log(error);
+    })
+    .on('finish', function() {
+      client.close();
+    });
